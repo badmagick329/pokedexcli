@@ -2,7 +2,6 @@ package clicommands
 
 import (
 	"fmt"
-	"log"
 	"os"
 
 	"github.com/badmagick329/pokedexcli/pokeapi"
@@ -27,7 +26,7 @@ func commandExit() error {
 func commandMap() error {
 	resp, err := client.ListLocationAreas(false)
 	if err != nil {
-		log.Fatal(nil)
+		return err
 	}
 	for _, area := range resp.Results {
 		fmt.Printf("- %v: %v\n", area.Name, area.URL)
@@ -38,7 +37,7 @@ func commandMap() error {
 func commandMapb() error {
 	resp, err := client.ListLocationAreas(true)
 	if err != nil {
-		log.Fatal(nil)
+		return err
 	}
 	for _, area := range resp.Results {
 		fmt.Printf("- %v: %v\n", area.Name, area.URL)
