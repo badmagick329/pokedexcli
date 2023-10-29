@@ -1,5 +1,10 @@
 package clicommands
 
+import (
+	"fmt"
+	"os"
+)
+
 type CliCommand struct {
 	name        string
 	description string
@@ -22,10 +27,15 @@ func getCommands() map[string]CliCommand {
 }
 
 func commandHelp() error {
-    return nil
+	fmt.Println("Usage:")
+	for _, cmd := range getCommands() {
+		fmt.Println(cmd.name, ":", cmd.description)
+	}
+	return nil
 }
 
 func commandExit() error {
-    return nil
+	fmt.Println("Goodbye 👋")
+	os.Exit(0)
+	return nil
 }
-

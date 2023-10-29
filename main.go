@@ -13,9 +13,13 @@ func main() {
 	for scanner.Scan() {
 		text := scanner.Text()
 		if text == "" {
-			break
+			fmt.Printf("pokedex > ")
+			continue
 		}
-		clicommands.HandleInput(text)
+		output := clicommands.HandleInput(text)
+		if output != "" {
+			fmt.Printf(output)
+		}
 		fmt.Printf("pokedex > ")
 	}
 }
