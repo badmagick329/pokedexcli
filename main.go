@@ -7,20 +7,10 @@ import (
 	"os"
 
 	"github.com/badmagick329/pokedexcli/clicommands"
-	"github.com/badmagick329/pokedexcli/pokeapi"
 )
 
 func main() {
-	// run()
-	apiTest()
-}
-
-func apiTest() {
-	url := "https://pokeapi.co/api/v2/location-area/"
-	res := pokeapi.Get(url)
-	var data pokeapi.LocationArea
-	pokeapi.Json(res, &data)
-	fmt.Println(data)
+	run()
 }
 
 func run() {
