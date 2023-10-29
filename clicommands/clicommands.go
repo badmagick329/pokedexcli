@@ -29,7 +29,7 @@ func getCommands() map[string]CliCommand {
 func commandHelp() error {
 	fmt.Println("Usage:")
 	for _, cmd := range getCommands() {
-		fmt.Println(cmd.name, ":", cmd.description)
+		fmt.Printf("%s: %s\n", cmd.name, cmd.description)
 	}
 	return nil
 }

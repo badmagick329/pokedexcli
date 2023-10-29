@@ -8,18 +8,35 @@ import (
 )
 
 func main() {
-	scanner := bufio.NewScanner(os.Stdin)
-	fmt.Printf("pokedex > ")
-	for scanner.Scan() {
-		text := scanner.Text()
+	run()
+}
+
+func run() {
+	prompt := prompter()
+	for {
+		text := prompt()
 		if text == "" {
-			fmt.Printf("pokedex > ")
 			continue
 		}
 		output := clicommands.HandleInput(text)
 		if output != "" {
 			fmt.Printf(output)
 		}
-		fmt.Printf("pokedex > ")
+	}
+}
+
+func prompter() func() string {
+	scanner := bufio.NewScanner(os.Stdin)
+	return func() string {
+		fmt.Printf("Pokedex > ")
+		res := scanner.Scan()
+		if res {
+			return scanner.Text()
+		} else {
+			fmt.Println("An error occured")
+			fmt.Println(scanner.Err().Error())
+			os.Exit(1)
+			return ""
+		}
 	}
 }
