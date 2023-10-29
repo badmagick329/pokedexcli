@@ -27,13 +27,7 @@ func NewClient() Client {
 }
 
 func (c *Client) ListLocationAreas(back bool) (LocationArea, error) {
-	endpoint := "/location-area"
-	fullUrl := baseUrl + endpoint
-	if !back && c.next != "" {
-		fullUrl = c.next
-	} else if back && c.prev != "" {
-		fullUrl = c.prev
-	}
+	fullUrl := c.getLocationURL(back)
 	dat, err := c.get(fullUrl)
 	if err != nil {
 		return LocationArea{}, err
@@ -43,12 +37,7 @@ func (c *Client) ListLocationAreas(back bool) (LocationArea, error) {
 	if err != nil {
 		return data, fmt.Errorf("Error unmarshalling: %v", err)
 	}
-	if data.Next != nil {
-		c.next = *data.Next
-	}
-	if data.Previous != nil {
-		c.prev = *data.Previous
-	}
+	c.updateCursor(data.Next, data.Previous)
 	return data, nil
 }
 
@@ -70,4 +59,23 @@ func (c *Client) get(url string) ([]byte, error) {
 		return nil, fmt.Errorf("Error reading body: %v", err)
 	}
 	return dat, nil
+}
+
+func (c *Client) getLocationURL(back bool) string {
+	endpoint := "/location-area"
+	if !back && c.next != "" {
+		return c.next
+	} else if back && c.prev != "" {
+		return c.prev
+	}
+	return baseUrl + endpoint
+}
+
+func (c *Client) updateCursor(next *string, prev *string) {
+	if next != nil {
+		c.next = *next
+	}
+	if prev != nil {
+		c.prev = *prev
+	}
 }
