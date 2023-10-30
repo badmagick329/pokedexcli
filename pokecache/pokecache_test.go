@@ -2,6 +2,7 @@ package pokecache
 
 import (
 	"testing"
+	"time"
 
 	"github.com/google/go-cmp/cmp"
 )
@@ -16,7 +17,7 @@ type TestCacheCase struct {
 
 func TestCache(t *testing.T) {
 	cases := testCacheCases()
-	cache := NewCache()
+	cache := NewCache(time.Minute * 1)
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			var got []byte
@@ -84,5 +85,21 @@ func testCacheCases() []TestCacheCase {
 			val:    []byte{},
 			want:   []byte{},
 		},
+	}
+}
+
+func TestReap(t *testing.T) {
+	interval := time.Millisecond * 250
+	c := NewCache(interval)
+	c.Add("test1", []byte("test1"))
+	time.Sleep(time.Millisecond * 10)
+	val := c.Get("test1")
+	if val == nil {
+		t.Errorf("Value was reaped too early")
+	}
+	time.Sleep(interval)
+	val = c.Get("test1")
+	if val != nil {
+		t.Errorf("Value was not reaped")
 	}
 }

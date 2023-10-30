@@ -3,11 +3,12 @@ package clicommands
 import (
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/badmagick329/pokedexcli/pokeapi"
 )
 
-var client = pokeapi.NewClient()
+var client = pokeapi.NewClient(time.Hour)
 
 func commandHelp() error {
 	fmt.Println("Usage:")

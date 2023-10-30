@@ -6,6 +6,8 @@ import (
 	"io"
 	"net/http"
 	"time"
+
+	"github.com/badmagick329/pokedexcli/pokecache"
 )
 
 const baseUrl = "https://pokeapi.co/api/v2"
@@ -14,15 +16,17 @@ type Client struct {
 	httpClient http.Client
 	next       string
 	prev       string
+	cache      pokecache.Cache
 }
 
-func NewClient() Client {
+func NewClient(cacheInterval time.Duration) Client {
 	return Client{
 		httpClient: http.Client{
 			Timeout: time.Minute,
 		},
-		next: "",
-		prev: "",
+		next:  "",
+		prev:  "",
+		cache: pokecache.NewCache(cacheInterval),
 	}
 }
 
@@ -42,6 +46,10 @@ func (c *Client) ListLocationAreas(back bool) (LocationArea, error) {
 }
 
 func (c *Client) get(url string) ([]byte, error) {
+	cached := c.cache.Get(url)
+	if cached != nil {
+		return cached, nil
+	}
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return nil, err
@@ -58,6 +66,7 @@ func (c *Client) get(url string) ([]byte, error) {
 	if err != nil {
 		return nil, fmt.Errorf("Error reading body: %v", err)
 	}
+	c.cache.Add(url, dat)
 	return dat, nil
 }
 
