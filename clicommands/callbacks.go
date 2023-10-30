@@ -114,3 +114,15 @@ func printPokemon(name string, pokemon pokeapi.Pokemon) {
 	}
 
 }
+
+func Pokedex(s []string) error {
+	if len(config.Pokemons) == 0 {
+		fmt.Println("You have not caught any pokemons")
+		return nil
+	}
+	fmt.Println("Your pokedex: ")
+	for _, pokemon := range config.Pokemons {
+		fmt.Printf("  -%s\n", pokemon.Name)
+	}
+	return nil
+}
