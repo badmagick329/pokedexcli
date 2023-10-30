@@ -14,19 +14,17 @@ const baseUrl = "https://pokeapi.co/api/v2"
 
 type Client struct {
 	httpClient http.Client
-	next       string
-	prev       string
+	config     Config
 	cache      pokecache.Cache
 }
 
-func NewClient(cacheInterval time.Duration) Client {
+func NewClient(cacheInterval time.Duration, config Config) Client {
 	return Client{
 		httpClient: http.Client{
 			Timeout: time.Minute,
 		},
-		next:  "",
-		prev:  "",
-		cache: pokecache.NewCache(cacheInterval),
+		config: config,
+		cache:  pokecache.NewCache(cacheInterval),
 	}
 }
 
@@ -42,6 +40,36 @@ func (c *Client) ListLocationAreas(back bool) (LocationArea, error) {
 		return data, fmt.Errorf("Error unmarshalling: %v", err)
 	}
 	c.updateCursor(data.Next, data.Previous)
+	return data, nil
+}
+
+func (c *Client) LocationDetails(locName string) (LocationDetails, error) {
+	endpoint := "/location-area"
+	fullUrl := baseUrl + endpoint + "/" + locName
+	dat, err := c.get(fullUrl)
+	if err != nil {
+		return LocationDetails{}, err
+	}
+	data := LocationDetails{}
+	err = json.Unmarshal(dat, &data)
+	if err != nil {
+		return LocationDetails{}, err
+	}
+	return data, nil
+}
+
+func (c *Client) CatchPokemon(pokemon string) (Pokemon, error) {
+	endpoint := "/pokemon"
+	fullUrl := baseUrl + endpoint + "/" + pokemon
+	dat, err := c.get(fullUrl)
+	if err != nil {
+		return Pokemon{}, err
+	}
+	data := Pokemon{}
+	err = json.Unmarshal(dat, &data)
+	if err != nil {
+		return Pokemon{}, err
+	}
 	return data, nil
 }
 
@@ -72,19 +100,19 @@ func (c *Client) get(url string) ([]byte, error) {
 
 func (c *Client) getLocationURL(back bool) string {
 	endpoint := "/location-area"
-	if !back && c.next != "" {
-		return c.next
-	} else if back && c.prev != "" {
-		return c.prev
+	if !back && c.config.next != "" {
+		return c.config.next
+	} else if back && c.config.prev != "" {
+		return c.config.prev
 	}
 	return baseUrl + endpoint
 }
 
 func (c *Client) updateCursor(next *string, prev *string) {
 	if next != nil {
-		c.next = *next
+		c.config.next = *next
 	}
 	if prev != nil {
-		c.prev = *prev
+		c.config.prev = *prev
 	}
 }

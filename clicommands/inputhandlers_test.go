@@ -28,7 +28,7 @@ func TestCleanInput(t *testing.T) {
 
 func TestHandleInput(t *testing.T) {
 	var t1 int
-	cb := func() error {
+	cb := func(s []string) error {
 		t1 = 1
 		return nil
 	}
