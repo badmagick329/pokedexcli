@@ -24,6 +24,10 @@ func Help() error {
 
 func Exit() error {
 	fmt.Println("Goodbye 👋")
+	err := client.Close()
+	if err != nil {
+		fmt.Println(err)
+	}
 	os.Exit(0)
 	return nil
 }

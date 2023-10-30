@@ -134,3 +134,11 @@ func (c *Client) updateCursor(next *string, prev *string) {
 		c.config.prev = *prev
 	}
 }
+
+func (c *Client) Close() error {
+	err := c.cache.Save()
+	if err != nil {
+		return err
+	}
+	return nil
+}
