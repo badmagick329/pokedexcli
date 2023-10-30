@@ -73,6 +73,7 @@ func Catch(s []string) error {
 	if err != nil {
 		return err
 	}
+	fmt.Printf("Throwing a Pokeball at %s...\n", name)
 	const threshold = 50
 	randomNum := rand.Intn(resp.BaseExperience)
 	if randomNum > threshold {

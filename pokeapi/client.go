@@ -18,6 +18,14 @@ type Client struct {
 	cache      pokecache.Cache
 }
 
+type StatusCodeError struct {
+	code int
+}
+
+func (s *StatusCodeError) Error() string {
+	return fmt.Sprintf("Bad status code: %d", s.code)
+}
+
 func NewClient(cacheInterval time.Duration, config Config) Client {
 	return Client{
 		httpClient: http.Client{
@@ -48,7 +56,12 @@ func (c *Client) LocationDetails(locName string) (LocationDetails, error) {
 	fullUrl := baseUrl + endpoint + "/" + locName
 	dat, err := c.get(fullUrl)
 	if err != nil {
-		return LocationDetails{}, err
+		switch e := err.(type) {
+		case *StatusCodeError:
+			return LocationDetails{}, fmt.Errorf("%s not found. %s", locName, e.Error())
+		default:
+			return LocationDetails{}, nil
+		}
 	}
 	data := LocationDetails{}
 	err = json.Unmarshal(dat, &data)
@@ -63,7 +76,12 @@ func (c *Client) CatchPokemon(pokemon string) (Pokemon, error) {
 	fullUrl := baseUrl + endpoint + "/" + pokemon
 	dat, err := c.get(fullUrl)
 	if err != nil {
-		return Pokemon{}, err
+		switch e := err.(type) {
+		case *StatusCodeError:
+			return Pokemon{}, fmt.Errorf("%s not found. %s", pokemon, e.Error())
+		default:
+			return Pokemon{}, nil
+		}
 	}
 	data := Pokemon{}
 	err = json.Unmarshal(dat, &data)
@@ -88,7 +106,7 @@ func (c *Client) get(url string) ([]byte, error) {
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode > 399 {
-		return nil, fmt.Errorf("Bad status code: %v", resp.StatusCode)
+		return nil, &StatusCodeError{code: resp.StatusCode}
 	}
 	dat, err := io.ReadAll(resp.Body)
 	if err != nil {
